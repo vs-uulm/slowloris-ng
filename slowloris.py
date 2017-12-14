@@ -22,7 +22,7 @@ parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", he
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
 parser.add_argument('--proxy-port', default="8080", help="SOCKS5 proxy port", type=int)
 parser.add_argument("--https", dest="https", action="store_true", help="Use HTTPS for the requests")
-parser.add_argument('-src', type=str, dest='sourceIP')
+parser.add_argument('-src','--src', default="192.168.2.5", type=str, dest='sourceIP')
 parser.set_defaults(verbose=False)
 parser.set_defaults(randuseragent=False)
 parser.set_defaults(useproxy=False)
