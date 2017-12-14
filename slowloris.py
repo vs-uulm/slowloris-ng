@@ -13,6 +13,7 @@ parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually
 parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to use in the test", type=int)
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
 parser.add_argument('-w', '--waittime', dest="wait_time", default=15, help="Waiting time between keep-alives")
+parser.add_argument('-r', '--randomvariance', dest="rand_var", default=0, help="Maximum random variance between keep-alives")
 parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Randomizes user-agents with each request")
 parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
@@ -125,7 +126,9 @@ def main():
                     list_of_sockets.append(s)
             except socket.error:
                 break
-        time.sleep(float(args.wait_time))
+        sleeptime = max(0,(float(args.wait_time) - float(args.rand_var)) + random.uniform(0, 2*float(args.rand_var)))
+        logging.info("waiting: %s", sleeptime)
+        time.sleep(sleeptime)
 
 if __name__ == "__main__":
     main()
