@@ -12,6 +12,7 @@ parser.add_argument('host', nargs="?", help="Host to perform stress test on")
 parser.add_argument('-p', '--port', default=80, help="Port of webserver, usually 80", type=int)
 parser.add_argument('-s', '--sockets', default=150, help="Number of sockets to use in the test", type=int)
 parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Increases logging")
+parser.add_argument('-w', '--waittime', dest="wait_time", default=15, help="Waiting time between keep-alives")
 parser.add_argument('-ua', '--randuseragents', dest="randuseragent", action="store_true", help="Randomizes user-agents with each request")
 parser.add_argument('-x', '--useproxy', dest="useproxy", action="store_true", help="Use a SOCKS5 proxy for connecting")
 parser.add_argument('--proxy-host', default="127.0.0.1", help="SOCKS5 proxy host")
@@ -124,7 +125,7 @@ def main():
                     list_of_sockets.append(s)
             except socket.error:
                 break
-        time.sleep(15)
+        time.sleep(float(args.wait_time))
 
 if __name__ == "__main__":
     main()
