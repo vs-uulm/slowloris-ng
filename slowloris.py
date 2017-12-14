@@ -128,8 +128,8 @@ def main():
             try:
                 content = "X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8")
                 if args.burstmode:
-                    for i,c in enumerate(content):
-                    	s.send(c)
+                    for c in content:
+                    	s.send(chr(c).encode("utf-8"))
                     	time.sleep(0.001) # wait 1 msec to increase chance of additional TCP packets in burst mode
                 else:
                     s.send(content)
