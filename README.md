@@ -5,6 +5,7 @@ Slowloris is basically an HTTP Denial of Service attack that affects threaded se
 
 1. We start making lots of HTTP requests.
 2. We send headers periodically (every ~15 seconds) to keep the connections open.
+      * **Note:** This fork uses a configurable waiting time and allows additional variance for a more randomized behavior. We also send headers in packet bursts in order to create a higher overall packet rate over time.
 3. We never close the connection unless the server does so. If the server closes a connection, we create a new one keep doing the same thing.
 
 This exhausts the servers thread pool and the server can't reply to other people.
